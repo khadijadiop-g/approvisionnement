@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SupplyPro | Console d'Approvisionnement & Logistique</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
+<style>
         :root {
             --bg-color: #060913;
             --panel-bg: rgba(17, 24, 43, 0.45);
@@ -339,7 +339,7 @@
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-    </style>
+</style>
 </head>
 <body>
 
@@ -479,92 +479,90 @@
                     </div>
 
                    </form>
-                                <?php
-                                 $approvs = $approvs ?? [];
-                                 foreach($approvs as $approv):
-                                 ?>
+
                     <!-- Slips Container -->
                     <div id="slips-container">
-                        
-     
-                       
-                   
 
-                       
-                        <div class="panel-card" style="padding: 20px; border-radius: 16px; margin-bottom: 16px; background: rgba(255,255,255,0.01);" >
+                        <?php
+                         $approvs = $approvs ?? [];
+                         foreach($approvs as $approv):
+                         ?>
+
+                        <div class="panel-card" style="padding: 20px; border-radius: 16px; margin-bottom: 16px; background: rgba(255,255,255,0.01);">
 
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                                 <div>
-                                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Réf: <?= $approv['ref_bl'] ?> • <?= $approv['date_app'] ?></span>
+                                    <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Réf: <?= $approv['ref_bl'] ?> • <?= $approv['date_app'] ?></span>
                                     <div style="font-size: 16px; font-weight: 700;"><?= $approv['nomf'] ?></div>
                                 </div>
                                 <span class="badge <?= $approv['clascol'] ?>" id="status-2"><?= $approv['noms'] ?></span>
                             </div>
-                            
+
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div style="font-size: 18px; font-weight: 800; color: var(--accent);"><?= $approv['montant'] ?>FCFA</div>
                                 <div style="display: flex; gap: 8px;">
-
-                                   
-                                        <?php if($approv['noms'] =='RECEPTIONNER'):?>
-                                         <button class="btn-quick-action" onclick="toggleDetails('details-<?= $approv['id'] ?>')">Voir articles (<?= $approv['nbr_id'] ?>)</button>
-                                            <div class="details-drawer" id="details-<?= $approv['id'] ?>">
-                                                <div style="font-weight: 700; font-size: 12px; color: var(--accent); margin-bottom: 8px;">Lignes d'articles reçus :</div>
-                                                    <?php foreach($approv['ligne'] as $ligne):?>
-                                                <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
-                                                    <span><?= $ligne['qt_appro'] ?> x <?= $ligne['libelle'] ?>  (achat à <?= $ligne['prix_achatreell'] ?> F/u)</span>
-                                                    <span style="font-weight: 700; color: var(--text-main);"><?= $ligne['sous_total'] ?> F</span>
-                                                </div>
-                                                    <?php endforeach ?>
-                                            </div>
-
-                                        <?php else: ?>
+                                    <?php if($approv['noms'] =='RECEPTIONNER'):?>
+                                        <button class="btn-quick-action" onclick="toggleDetails('details-<?= $approv['id'] ?>')">Voir articles (<?= $approv['nbr_id'] ?>)</button>
+                                    <?php else: ?>
                                         <button class="btn-quick-action" style="border-color: var(--success); color: var(--success);" id="btn-receptive-<?= $approv['id'] ?>" onclick="receptionSlip(<?= $approv['id'] ?>)">Réceptionner</button>
-
-                            <div class="details-drawer" id="details-<?= $approv['id'] ?>">
-                                      
-                                <div id="details-<?= $approv['id'] ?>-static" style="display: none;">
-                                    <div style="font-weight: 700; font-size: 12px; color: var(--accent); margin-bottom: 8px;">Lignes d'articles réceptionnés :</div>
-                                    <div id="details-<?= $approv['id'] ?>-static-lines"></div>
+                                    <?php endif ?>
                                 </div>
-                                <div id="details-<?= $approv['id'] ?>-editor">
-                                    <div style="font-weight: 700; font-size: 12px; color: var(--accent); margin-bottom: 12px;">Saisie des Quantités Reçues et Coûts Réels :</div>
-                                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                                        <!-- Item 1 -->
-                                          <?php foreach($approv['ligne'] as $ligne):?>
+                            </div>
 
-                                        <div style="display: grid; grid-template-columns: 2fr 1fr 1.2fr; gap: 12px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03);">
-                                            <span style="font-weight:700; font-size:12px;"><?= $ligne['libelle'] ?> (Attendu: <?= $ligne['qt_appro'] ?>)</span>
-                                            <div>
-                                                <label style="font-size:9px; color:var(--text-muted); display:block; margin-bottom:2px;">Qté Reçue</label>
-                                                <input type="number" id="recept-qty-<?= $approv['id'] ?>-1" class="form-control" value="" style="padding:4px 8px; font-size:11px;">
-                                            </div>
-                                            <div>
-                                                <label style="font-size:9px; color:var(--text-muted); display:block; margin-bottom:2px;">Coût Achat (F)</label>
-                                                <input type="number" id="recept-price-<?= $approv['id'] ?>-1" class="form-control" value="<?= $ligne['prix_achatreell'] ?>" style="padding:4px 8px; font-size:11px;">
+                            <?php if($approv['noms'] =='RECEPTIONNER'):?>
+
+                                <div class="details-drawer" id="details-<?= $approv['id'] ?>">
+                                    <div style="font-weight: 700; font-size: 12px; color: var(--accent); margin-bottom: 8px;">Lignes d'articles reçus :</div>
+                                    <?php foreach($approv['ligne'] as $ligne):?>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
+                                        <span><?= $ligne['qt_appro'] ?> x <?= $ligne['libelle'] ?>  (achat à <?= $ligne['prix_achatreell'] ?> F/u)</span>
+                                        <span style="font-weight: 700; color: var(--text-main);"><?= $ligne['sous_total'] ?> F</span>
+                                    </div>
+                                    <?php endforeach ?>
+                                </div>
+
+                            <?php else: ?>
+
+                                <form action="http://localhost:7000/modiAppro" method="POST">
+                                    <div class="details-drawer" id="details-<?= $approv['id'] ?>">
+                                            <input type="hidden" name="appro_id" value="<?= $approv['id'] ?>">
+                                        <div id="details-<?= $approv['id'] ?>-static" style="display: none;">
+                                            <div style="font-weight: 700; font-size: 12px; color: var(--accent); margin-bottom: 8px;">Lignes d'articles réceptionnés :</div>
+                                            <div id="details-<?= $approv['id'] ?>-static-lines"></div>
+                                        </div>
+
+                                        <div id="details-<?= $approv['id'] ?>-editor">
+                                            <div style="font-weight: 700; font-size: 12px; color: var(--accent); margin-bottom: 12px;">Saisie des Quantités Reçues et Coûts Réels :</div>
+                                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                                <?php foreach($approv['ligne'] as $ligne):?>
+                                                <div style="display: grid; grid-template-columns: 2fr 1fr 1.2fr; gap: 12px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                                    <span style="font-weight:700; font-size:12px;"><?= $ligne['libelle'] ?> (Attendu: <?= $ligne['qt_appro'] ?>)</span>
+                                                    <div>
+                                                        <label style="font-size:9px; color:var(--text-muted); display:block; margin-bottom:2px;">Qté Reçue</label>
+                                                        <input name="ligne[<?= $ligne['id1'] ?>][qte_recu]" type="number" id="recept-qty-<?= $approv['id'] ?>-1" class="form-control" value="" style="padding:4px 8px; font-size:11px;">
+                                                    </div>
+                                                    <div>
+                                                        <label style="font-size:9px; color:var(--text-muted); display:block; margin-bottom:2px;">Coût Achat (F)</label>
+                                                        <input name="ligne[<?= $ligne['id1'] ?>][prix_reel]" type="number" id="recept-price-<?= $approv['id'] ?>-1" class="form-control" value="<?= $ligne['prix_achatreell'] ?>" style="padding:4px 8px; font-size:11px;">
+                                                        <input type="hidden" name="ligne[<?= $ligne['id1'] ?>][article_id]" value="<?= $ligne['id2'] ?>">
+                                                    </div>
+                                                </div>
+                                                <?php endforeach ?>
                                             </div>
                                         </div>
-                                       <?php endforeach ?>
+
+                                        <button type="submit" class="btn-submit btn-success" style="margin-top: 14px; padding: 10px 16px; font-size: 11px; width: auto;" onclick="validateReceptionComplex(<?= $approv['id'] ?>)">Confirmer et réceptionner les quantités saisies</button>
+
                                     </div>
-                                </div>
-                            
-                                                                <button type="button" class="btn-submit btn-success" style="margin-top: 14px; padding: 10px 16px; font-size: 11px; width: auto;" onclick="validateReceptionComplex(<?= $approv['id'] ?>)">Confirmer et réceptionner les quantités saisies</button>
+                                </form>
 
-                            </div> 
-                            
+                            <?php endif ?>
 
-                                        <?php endif ?> 
-
-
-                                      
                         </div>
-                           
-                        </div>
-                                     
+
+                        <?php endforeach ?>
+
                     </div>
-
-   <?php endforeach ?> 
-                </div>
                 </div>
 
                 <!-- Out of stock triggers / Replenishment Mail draft -->
@@ -574,7 +572,7 @@
                         Générez instantanément des bons de commande pour vos fournisseurs pour les produits en alerte :
                     </p>
                     <div style="display: flex; flex-direction: column; gap: 14px;">
-                        
+
                         <!-- Stock item 1 -->
 
                                 <?php
@@ -627,7 +625,7 @@
                                 <td style="color: var(--<?= $appro['color'] ?>); font-weight: 700;"><?= $appro['diagnos'] ?></td>
                             </tr>
                              <?php endforeach ?>
-                            
+
                         </tbody>
                     </table>
                 </div>
@@ -637,7 +635,7 @@
     </div>
 
     <!-- JavaScript Cart, Filters, Alerts & simulators -->
-    <script>
+<script>
         const cart = [];
         let currentFilter = 'tous';
 
@@ -717,39 +715,35 @@
             // Read inputs
             const qty1 = parseInt(document.getElementById("recept-qty-2-1").value);
             const price1 = parseFloat(document.getElementById("recept-price-2-1").value);
-            
+
             const qty2 = parseInt(document.getElementById("recept-qty-2-2").value);
             const price2 = parseFloat(document.getElementById("recept-price-2-2").value);
-            
+
             const qty3 = parseInt(document.getElementById("recept-qty-2-3").value);
             const price3 = parseFloat(document.getElementById("recept-price-2-3").value);
-            
+
             const actualTotal = (qty1 * price1) + (qty2 * price2) + (qty3 * price3);
-            
+
             // Build static list
-         
-            
+
             // Show static view and hide editor view
             document.getElementById("details-2-editor").style.display = "none";
             document.getElementById("details-2-static").style.display = "block";
-            
+
             // Update Card Title amount & status
             const card = document.querySelector('[data-ref="BL-DIP-012"]');
             card.setAttribute("data-status", "receptionne");
-            
+
             // Update UI status badge & hide validate buttons
-          
-            
+
             const btnReceptive = document.getElementById("btn-receptive-" + id);
             if (btnReceptive) btnReceptive.style.display = "none";
-            
+
             // Update card total display text
-            
-            
+
+
             // Update Ledger Audit Table
-           
-            
-            
+
         }
 
         // Toggle Order Draft Generator
@@ -800,6 +794,6 @@
             currentFilter = filterType;
             filterSlips();
         }
-    </script>
+</script>
 </body>
 </html>

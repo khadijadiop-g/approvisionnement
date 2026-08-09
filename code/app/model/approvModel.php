@@ -7,7 +7,7 @@ function getReception():array{
 CASE 
 WHEN SUM(l.prix_achatreell*l.qt_appro) = SUM(l.prix_achatreell*l.qt_recu) 
 THEN 'CONCORDE'
-WHEN SUM(l.prix_achatreell*l.qt_recu) = 0
+WHEN l.qt_recu = 0
 THEN 'EN_ATTENTE'
 ELSE concat('ÉCART',(SUM(l.prix_achatreell*l.qt_recu)-SUM(l.prix_achatreell*l.qt_appro)))
 END AS diagnos,CASE
@@ -18,7 +18,7 @@ THEN 'warning'
 ELSE 'danger'
 END AS color 
 FROM appros a INNER JOIN ligne_appro l ON a.id = l.id_appro INNER JOIN fournis f ON f.id = a.id_fourni
-GROUP BY a.id,a.ref_bl,f.nom;";
+GROUP BY a.id,a.ref_bl,f.nom,l.qt_recu";
 
 $appros = query($pdo,$sql,false);
 return $appros;
@@ -28,7 +28,8 @@ function getAppros():array{
 
 $approvs =[];
     $pdo = deconnecteDB();
-    $sql= "SELECT a.id,a.ref_bl,to_char(a.date_appro,'DD-MM-YYYY') AS date_app,s.nom AS noms,f.nom AS nomf,SUM(l.prix_achatreell*l.qt_appro) AS montant,
+    $sql= "SELECT a.id,a.ref_bl,to_char(a.date_appro,'DD-MM-YYYY') AS date_app,s.nom AS noms,f.nom AS nomf,
+    SUM(l.prix_achatreell*l.qt_recu) AS montant,
 COUNT(l.id) AS nbr_id,CASE
 WHEN s.nom = 'EN COURS'
 THEN 'non-payee'
@@ -42,7 +43,7 @@ GROUP BY a.id,a.ref_bl,date_app,s.nom,f.nom";
 $approvs = query($pdo,$sql,false);
 
 
-$sql1="SELECT a.libelle,l.qt_appro,l.prix_achatreell,(l.qt_appro*l.prix_achatreell) AS sous_total
+$sql1="SELECT a.libelle,a.id AS id2,l.id AS id1,l.qt_appro,l.prix_achatreell,(l.qt_appro*l.prix_achatreell) AS sous_total
 FROM ligne_appro l INNER JOIN articles a ON l.id_article = a.id WHERE l.id_appro = :id";
 
 foreach($approvs as &$approv){
@@ -53,4 +54,38 @@ $approv['ligne'] = executeQuery($pdo,$sql1,['id'=>$approv['id']],false);
     
 
    return $approvs; 
+}
+
+function saveModif(int $id,array $datas){
+
+ $pdo = deconnecteDB();
+ 
+
+try {
+    $pdo ->beginTransaction();
+    $sql1 ="UPDATE ligne_appro SET qt_recu = :qt_recu  WHERE id = :idligne";
+    $sql2 ="UPDATE articles SET stock = stock+:qt_recu  WHERE id = :idarticle";
+    $sql3 ="UPDATE appros SET id_statut = 2 WHERE id = :id_appro";
+
+     $rqtligne = $pdo ->prepare($sql1);
+     $rqtarticle = $pdo ->prepare($sql2);
+     $rqtappro = $pdo ->prepare($sql3);
+
+     foreach ($datas as $key => $data) {
+
+      $rqtligne -> execute(['qt_recu'=>$data['qte_recu'],'idligne'=>$key]);
+      $rqtarticle -> execute(['qt_recu'=>$data['qte_recu'],'idarticle'=>$data['article_id']]);
+        
+     }
+
+    $rqtappro -> execute(['id_appro'=>$id]);
+
+     $pdo->commit();     
+   
+} catch (Throwable $th) {
+    $pdo->rollBack();
+
+        throw $th;
+}
+
 }

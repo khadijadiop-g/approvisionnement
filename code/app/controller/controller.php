@@ -13,6 +13,26 @@ function listerView(){
 }
 
 
+function modiAppro(){
+  $appro_id = $_POST['appro_id'];
+  $ligne= $_POST['ligne'];
+  
+  saveModif($appro_id,$ligne);
+    header("Location: http://localhost:7000/");
+    exit;
+    
+
+}
+
+
+
+function saveAppro(){
+
+
+
+}
+
+
 function renderView(string $file,array $datas=[]){
   extract($datas);
     require_once dirname(__DIR__). "/view/$file";
