@@ -5,6 +5,9 @@ switch($uri){
     case '/':
         listerView();
         break;
+        case '/modiAppro':
+            modiAppro();
+        break;
          case '/saveAppro':
             saveAppro();
         break;

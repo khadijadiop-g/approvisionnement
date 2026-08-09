@@ -155,3 +155,34 @@ GROUP BY a.id,a.ref_bl,date_app,s.nom,f.nom;
 
 SELECT a.libelle,l.qt_appro,l.prix_achatreell,(l.qt_appro*l.prix_achatreell) AS sous_total
 FROM ligne_appro l INNER JOIN articles a ON l.id_article = a.id WHERE l.id_appro = 1;
+
+SELECT a.libelle,a.id AS id2,l.id AS id1,l.qt_appro,l.prix_achatreell,(l.qt_appro*l.prix_achatreell) AS sous_total
+FROM ligne_appro l INNER JOIN articles a ON l.id_article = a.id WHERE l.id_appro = 4
+;
+
+SELECT a.id, a.ref_bl,f.nom ,SUM(l.prix_achatreell*l.qt_appro) AS montantfacture, SUM(l.prix_achatreell*l.qt_recu) AS montantreel,
+CASE 
+WHEN SUM(l.prix_achatreell*l.qt_appro) = SUM(l.prix_achatreell*l.qt_recu) 
+THEN 'CONCORDE'
+WHEN l.qt_recu = 0
+THEN 'EN_ATTENTE'
+ELSE concat('ÉCART',(SUM(l.prix_achatreell*l.qt_recu)-SUM(l.prix_achatreell*l.qt_appro)))
+END AS diagnos,CASE
+WHEN SUM(l.prix_achatreell*l.qt_appro) = SUM(l.prix_achatreell*l.qt_recu)
+THEN 'success'
+WHEN SUM(l.prix_achatreell*l.qt_recu) = 0
+THEN 'warning'
+ELSE 'danger'
+END AS color 
+FROM appros a INNER JOIN ligne_appro l ON a.id = l.id_appro INNER JOIN fournis f ON f.id = a.id_fourni
+GROUP BY a.id,a.ref_bl,f.nom,l.qt_recu;
+
+BEGIN TRANSACTION;
+
+UPDATE ligne_appro SET qt_recu = :qt_recu  WHERE id = :idligne;
+
+UPDATE articles SET stock += :qt_recu  WHERE id = :idarticle;
+
+UPDATE appros SET id_statut = 2 WHERE id = :id_appro;
+
+COMMIT;
